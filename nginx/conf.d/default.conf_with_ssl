@@ -1,6 +1,6 @@
 server {
     listen 80;
-    server_name keycloak.surkoff.com www.keycloak.surkoff.com;
+    server_name my-keycloak.surkoff.com;
 
     location /.well-known/acme-challenge/ {
         root /data/letsencrypt;
@@ -13,10 +13,10 @@ server {
 
 server {
     listen 443 ssl;
-    server_name keycloak.surkoff.com www.keycloak.surkoff.com;
+    server_name my-keycloak.surkoff.com;
 
-    ssl_certificate /etc/letsencrypt/live/keycloak.surkoff.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/keycloak.surkoff.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/my-keycloak.surkoff.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/my-keycloak.surkoff.com/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
 

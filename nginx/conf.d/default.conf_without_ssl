@@ -1,6 +1,6 @@
 server {
     listen 80;
-    server_name keycloak.surkoff.com www.keycloak.surkoff.com;
+    server_name my-keycloak.surkoff.com;
 
     location /.well-known/acme-challenge/ {
         root /data/letsencrypt;

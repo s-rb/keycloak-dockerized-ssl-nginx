@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:1.27.0
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+      - nginx_certs:/etc/letsencrypt
+      - nginx_certs_data:/data/letsencrypt
+    depends_on:
+      - keycloak
+    restart: always
+    networks:
+      - keycloak-network
+
+  certbot:
+    image: certbot/certbot:v2.11.0
+    container_name: certbot
+    volumes:
+      - nginx_certs:/etc/letsencrypt
+      - nginx_certs_data:/data/letsencrypt
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do sleep 2073600; done'"
+    restart: always
+    networks:
+      - keycloak-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.1
+    container_name: keycloak
+    env_file: .env
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./keycloak/config:/opt/keycloak/data/import
+    restart: always
+    networks:
+      - keycloak-network
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm" ]
+
+  db:
+    image: postgres:14-alpine
+    container_name: keycloak-postgres
+    volumes:
+      - keycloak_postgres_data:/var/lib/postgresql/data
+    env_file: .env
+    restart: always
+    networks:
+      - keycloak-network
+
+volumes:
+  nginx_certs:
+  nginx_certs_data:
+  keycloak_data:
+  keycloak_postgres_data:
+
+networks:
+  keycloak-network:

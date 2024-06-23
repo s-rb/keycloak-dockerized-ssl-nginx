@@ -77,3 +77,35 @@ docker-compose up -d
 
 ### Checking access to our Keycloak - go to `my-keycloak.surkoff.com` in the browser
 ![keycloak_admin.png](pics/keycloak_admin.png)
+
+### Automatic certificate renewal
+
+To automatically update certificates and restart Nginx, create the `renew_and_reload.sh` script:
+
+```
+#!/bin/bash
+
+# Updating certificates
+docker exec certbot certbot renew --webroot --webroot-path=/data/letsencrypt
+
+# Restart Nginx
+docker restart nginx
+```
+
+Making the script executable:
+
+```
+chmod +x renew_and_reload.sh
+```
+
+Add it to crontab for regular execution:
+
+```
+crontab -e
+```
+
+Add a line to crontab, not forgetting to specify the path to the script:
+
+```
+0 0 1 * * /path/to/renew_and_reload.sh
+```

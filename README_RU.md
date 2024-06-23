@@ -21,7 +21,7 @@
 - `KEYCLOAK_ADMIN_PASSWORD` - пароль админа для доступа в Keycloak,
 - `KC_DB_PASSWORD` - Пароль для доступа сервиса кейклоак в БД Postgres (должен быть равен POSTGRES_PASSWORD если не создан отдельный пользователь),
 - `POSTGRES_PASSWORD` - пароль админа для Postgres
-- 
+
 ### Далее в инструкции полагаем что у вас будет зарегистрирован свой домен `surkoff.com` и мы хотим чтобы Keycloak был бы доступен по `my-keycloak.surkoff.com`
 
 ### Завести свой домен (зависит от вашего регистратора) например можно у [REG.RU - зарегистрировать домен](https://www.reg.ru/domain/new/?rlink=reflink-12623795).
@@ -76,3 +76,35 @@ docker-compose up -d
 
 ### Проверяем доступ к нашему Keycloak - заходим в браузере на `my-keycloak.surkoff.com`
 ![keycloak_admin.png](pics/keycloak_admin.png)
+
+### Автоматическое обновление сертификатов
+
+Чтобы автоматически обновлять сертификаты и перезапускать Nginx, создаем скрипт `renew_and_reload.sh`:
+
+```
+#!/bin/bash
+
+# Обновление сертификатов
+docker exec certbot certbot renew --webroot --webroot-path=/data/letsencrypt
+
+# Перезапуск Nginx
+docker restart nginx
+```
+
+Делаем скрипт исполняемым:
+
+```
+chmod +x renew_and_reload.sh
+```
+
+Добавляем его в crontab для регулярного выполнения:
+
+```
+crontab -e
+```
+
+Добавляем строку в crontab, не забывая указать путь к скрипту:
+
+```
+0 0 1 * * /path/to/renew_and_reload.sh
+```
